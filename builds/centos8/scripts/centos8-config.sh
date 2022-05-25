@@ -86,28 +86,40 @@ sudo crontab -r
 RUNONCE
 sudo chmod +rx /etc/cloud/runonce.sh
 echo "$(echo '@reboot ( sleep 30 ; sh /etc/cloud/runonce.sh )' ; crontab -l)" | sudo crontab -
+
 echo ' - Installing cloud-init-vmware-guestinfo ...'
-curl -sSL https://raw.githubusercontent.com/vmware/cloud-init-vmware-guestinfo/master/install.sh | sudo sh - &>/dev/null
+# curl -sSL https://raw.githubusercontent.com/vmware/cloud-init-vmware-guestinfo/master/install.sh | sudo sh - &>/dev/null
 
-# ## Setup MoTD
-# echo ' - Setting login banner ...'
-# BUILDDATE=$(date +"%y%m")
-# RELEASE=$(cat /etc/centos-release)
-# DOCS="https://github.com/v12n-io/packer"
-# sudo cat << ISSUE > /etc/issue
+## Setup MoTD
+echo ' - Setting login banner ...'
+BUILDDATE=$(date +"%Y%m")
+RELEASE=$(cat /etc/redhat-release)
+sudo tee /etc/issue >/dev/null << ISSUE
+ __  __ ____  ____  
+ |  \/  |  _ \|  _ \ 
+ | \  / | |_) | |_) |
+ | |\/| |  _ <|  _ < 
+ | |  | | |_) | |_) |
+ |_|  |_|____/|____/ 
+ 
+   $RELEASE ($BUILDDATE)
+ISSUE
 
-           # {__   {__ {_            
-# {__     {__ {__ {_     {__{__ {__  
- # {__   {__  {__      {__   {__  {__
-  # {__ {__   {__    {__     {__  {__
-   # {_{__    {__  {__       {__  {__
-    # {__    {____{________ {___  {__
-        
-        # $RELEASE ($BUILDDATE)
-        # $DOCS
+sudo ln -sf /etc/issue /etc/issue.net
 
-# ISSUE
-# sudo ln -sf /etc/issue /etc/issue.net
+sudo sed -i 's/#Banner none/Banner \/etc\/issue.net/g' /etc/ssh/sshd_config
+
+sudo tee /etc/motd >/dev/null << ISSUE
+ __  __ ____  ____  
+ |  \/  |  _ \|  _ \ 
+ | \  / | |_) | |_) |
+ | |\/| |  _ <|  _ < 
+ | |  | | |_) | |_) |
+ |_|  |_|____/|____/
+ 
+   $RELEASE ($BUILDDATE)
+ISSUE
+
 
 ## Final cleanup actions
 echo ' - Executing final cleanup tasks ...'
