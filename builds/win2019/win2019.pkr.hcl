@@ -236,7 +236,7 @@ build {
     # Build sources
     sources                 = [ "source.vsphere-iso.win2019stddexp",
                                 "source.vsphere-iso.win2019stdcore",
-                                "source.vsphere-iso.win2019stddexp" ]
+                                "source.vsphere-iso.win2019dcdexp" ]
     
 #   # Windows Update using https://github.com/rgl/packer-provisioner-windows-update
 #   provisioner "windows-update" {
