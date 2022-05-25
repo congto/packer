@@ -21,8 +21,8 @@ vcenter_insecure                = true
 vcenter_folder                  = "Templates"
 
 # VM Settings
-vm_ip_timeout                   = "20m"
-vm_shutdown_timeout             = "15m"
+vm_ip_timeout                   = "40m"
+vm_shutdown_timeout             = "30m"
 
 # Content Library Settings
 vcenter_content_library         = "VCENTER_CL"

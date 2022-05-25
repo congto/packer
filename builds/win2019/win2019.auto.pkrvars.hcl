@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------------
 
 # ISO Settings
-os_iso_file                     = "en_windows_server_2019_x64_dvd_3c2cf1202.iso"
+os_iso_file                     = "SW_DVD9_Win_Server_STD_CORE_2019_1809.18_64Bit_English_DC_STD_MLF_X22-74330.ISO"
 os_iso_path                     = "ISO"
 
 # OS Meta Data
