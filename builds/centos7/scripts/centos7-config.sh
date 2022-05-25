@@ -8,29 +8,29 @@ echo ' - Disabling IPv6 in grub ...'
 sudo sed -i 's/quiet"/quiet ipv6.disable=1"/' /etc/default/grub
 sudo grub2-mkconfig -o /boot/efi/EFI/centos/grub.cfg &>/dev/null
 
-# ## Apply updates
-# echo ' - Applying package updates ...'
-# sudo yum update -y -q &>/dev/null
+## Apply updates
+echo ' - Applying package updates ...'
+sudo yum update -y -q &>/dev/null
 
-# ## Install core packages
-# echo ' - Installing additional packages ...'
-# sudo yum install -y -q epel-release &>/dev/null
-# sudo yum install -y -q ca-certificates &>/dev/null
-# sudo yum install -y -q cloud-init perl python-pip cloud-utils-growpart &>/dev/null
+## Install core packages
+echo ' - Installing additional packages ...'
+sudo yum install -y -q epel-release &>/dev/null
+sudo yum install -y -q ca-certificates &>/dev/null
+sudo yum install -y -q cloud-init perl python-pip cloud-utils-growpart &>/dev/null
 
 # ## Adding additional repositories
 # # echo ' - Adding repositories ...'
 # # sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo &>/dev/null
 
-# ## Cleanup yum
-# echo ' - Clearing yum cache ...'
-# sudo yum clean all &>/dev/null
+## Cleanup yum
+echo ' - Clearing yum cache ...'
+sudo yum clean all &>/dev/null
 
-# ## Configure SSH server
-# echo ' - Configuring SSH server daemon ...'
-# sudo sed -i '/^PermitRootLogin/s/yes/no/' /etc/ssh/sshd_config
-# sudo sed -i "s/.*PubkeyAuthentication.*/PubkeyAuthentication no/g" /etc/ssh/sshd_config
-# sudo sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/g" /etc/ssh/sshd_config
+## Configure SSH server
+echo ' - Configuring SSH server daemon ...'
+sudo sed -i '/^PermitRootLogin/s/yes/yes/' /etc/ssh/sshd_config
+sudo sed -i "s/.*PubkeyAuthentication.*/PubkeyAuthentication no/g" /etc/ssh/sshd_config
+sudo sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/g" /etc/ssh/sshd_config
 
 # # ## Create Ansible user
 # # echo ' - Creating local user for Ansible integration ...'
@@ -55,90 +55,118 @@ sudo grub2-mkconfig -o /boot/efi/EFI/centos/grub.cfg &>/dev/null
 # # done
 # # sudo update-ca-trust extract
 
-# ## Configure cloud-init
-# echo ' - Installing cloud-init ...'
-# sudo touch /etc/cloud/cloud-init.disabled
+## Configure cloud-init
+echo ' - Installing cloud-init ...'
+sudo touch /etc/cloud/cloud-init.disabled
+# sudo sed -i 's/disable_root: 1/disable_root: 0/g' /etc/cloud/cloud.cfg
 # sudo sed -i 's/^ssh_pwauth:   0/ssh_pwauth:   1/g' /etc/cloud/cloud.cfg
-# sudo sed -i -e 1,3d /etc/cloud/cloud.cfg
-# sudo sed -i "s/^disable_vmware_customization: false/disable_vmware_customization: true/" /etc/cloud/cloud.cfg
-# sudo sed -i "/disable_vmware_customization: true/a\\\nnetwork:\n  config: disabled" /etc/cloud/cloud.cfg
-# sudo sed -i "s@^[a-z] /tmp @# &@" /usr/lib/tmpfiles.d/tmp.conf
-# sudo sed -i "/^After=vgauthd.service/a After=dbus.service" /usr/lib/systemd/system/vmtoolsd.service
-# sudo sed -i '/^disable_vmware_customization: true/a\datasource_list: [OVF]' /etc/cloud/cloud.cfg
-# sudo cat << RUNONCE > /etc/cloud/runonce.sh
-# #!/bin/bash
-# # Runonce script for cloud-init on vSphere
-# # @author Michael Poore
-# # @website https://blog.v12n.io
+sudo sed -i -e 1,3d /etc/cloud/cloud.cfg
+sudo sed -i "s/^disable_vmware_customization: false/disable_vmware_customization: true/" /etc/cloud/cloud.cfg
+sudo sed -i "/disable_vmware_customization: true/a\\\nnetwork:\n  config: disabled" /etc/cloud/cloud.cfg
+sudo sed -i "s@^[a-z] /tmp @# &@" /usr/lib/tmpfiles.d/tmp.conf
+sudo sed -i "/^After=vgauthd.service/a After=dbus.service" /usr/lib/systemd/system/vmtoolsd.service
+sudo sed -i '/^disable_vmware_customization: true/a\datasource_list: [OVF]' /etc/cloud/cloud.cfg
 
-# ## Enable cloud-init
-# sudo rm -f /etc/cloud/cloud-init.disabled
-# ## Execute cloud-init
-# sudo cloud-init init
-# sleep 20
-# sudo cloud-init modules --mode config
-# sleep 20
-# sudo cloud-init modules --mode final
-# ## Mark cloud-init as complete
-# sudo touch /etc/cloud/cloud-init.disabled
-# sudo touch /tmp/cloud-init.complete
-# sudo crontab -r
-# RUNONCE
-# sudo chmod +rx /etc/cloud/runonce.sh
-# echo "$(echo '@reboot ( sleep 30 ; sh /etc/cloud/runonce.sh )' ; crontab -l)" | sudo crontab -
+sudo cat << RUNONCE > /etc/cloud/runonce.sh
+#!/bin/bash
+# Runonce script for cloud-init on vSphere
+# @author Michael Poore
+# @website https://blog.v12n.io
+
+## Enable cloud-init
+sudo rm -f /etc/cloud/cloud-init.disabled
+## Execute cloud-init
+sudo cloud-init init
+sleep 20
+sudo cloud-init modules --mode config
+sleep 20
+sudo cloud-init modules --mode final
+## Mark cloud-init as complete
+sudo touch /etc/cloud/cloud-init.disabled
+sudo touch /tmp/cloud-init.complete
+sudo crontab -r
+RUNONCE
+
+sudo chmod +rx /etc/cloud/runonce.sh
+echo "$(echo '@reboot ( sleep 30 ; sh /etc/cloud/runonce.sh )' ; crontab -l)" | sudo crontab -
 # echo ' - Installing cloud-init-vmware-guestinfo ...'
 # curl -sSL https://raw.githubusercontent.com/vmware/cloud-init-vmware-guestinfo/master/install.sh | sudo sh - &>/dev/null
 
-# ## Setup MoTD
-# echo ' - Setting login banner ...'
-# BUILDDATE=$(date +"%y%m%d")
-# RELEASE=$(cat /etc/centos-release)
-# #DOCS="https://github.com/v12n-io/packer"
-# sudo cat << ISSUE > /etc/issue
- # __  __ ____  ____  
- # |  \/  |  _ \|  _ \ 
- # | \  / | |_) | |_) |
- # | |\/| |  _ <|  _ < 
- # | |  | | |_) | |_) |
- # |_|  |_|____/|____/                                                             
-                                                              
-        # $RELEASE ($BUILDDATE)
+## Setup MoTD
+echo ' - Setting login banner ...'
+BUILDDATE=$(date +"%Y%m")
+RELEASE=$(cat /etc/redhat-release)
+sudo tee /etc/issue >/dev/null << ISSUE
+ __  __ ____  ____  
+ |  \/  |  _ \|  _ \ 
+ | \  / | |_) | |_) |
+ | |\/| |  _ <|  _ < 
+ | |  | | |_) | |_) |
+ |_|  |_|____/|____/ 
+ 
+   $RELEASE ($BUILDDATE)
+ISSUE
 
-# ISSUE
-# sudo ln -sf /etc/issue /etc/issue.net
+sudo ln -sf /etc/issue /etc/issue.net
 
-# echo "Banner /etc/issue.net" >> /etc/ssh/sshd_config
+sudo sed -i 's/#Banner none/Banner \/etc\/issue.net/g' /etc/ssh/sshd_config
 
-# sudo cat << ISSUE > /etc/motd
- # __  __ ____  ____  
- # |  \/  |  _ \|  _ \ 
- # | \  / | |_) | |_) |
- # | |\/| |  _ <|  _ < 
- # | |  | | |_) | |_) |
- # |_|  |_|____/|____/                                                             
-                                                              
-        # $RELEASE ($BUILDDATE)
-# ISSUE
+sudo tee /etc/motd >/dev/null << ISSUE
+ __  __ ____  ____  
+ |  \/  |  _ \|  _ \ 
+ | \  / | |_) | |_) |
+ | |\/| |  _ <|  _ < 
+ | |  | | |_) | |_) |
+ |_|  |_|____/|____/
+ 
+   $RELEASE ($BUILDDATE)
+ISSUE
 
-# ## Final cleanup actions
-# echo ' - Executing final cleanup tasks ...'
-# if [ -f /etc/udev/rules.d/70-persistent-net.rules ]; then
-    # sudo rm -f /etc/udev/rules.d/70-persistent-net.rules
-# fi
-# sudo rm -rf /tmp/*
-# sudo rm -rf /var/tmp/*
-# sudo truncate -s 0 /etc/machine-id
-# sudo rm -f /var/lib/dbus/machine-id
-# sudo ln -s /etc/machine-id /var/lib/dbus/machine-id
-# sudo cloud-init clean --logs --seed
-# sudo rm -f /etc/ssh/ssh_host_*
-# if [ -f /var/log/audit/audit.log ]; then
-    # sudo cat /dev/null > /var/log/audit/audit.log
-# fi
-# if [ -f /var/log/wtmp ]; then
-    # sudo cat /dev/null > /var/log/wtmp
-# fi
-# if [ -f /var/log/lastlog ]; then
-    # sudo cat /dev/null > /var/log/lastlog
-# fi
-# echo ' - Configuration complete'
+
+## Final cleanup actions
+echo ' - Executing final cleanup tasks ...'
+if [ -f /etc/udev/rules.d/70-persistent-net.rules ]; then
+    sudo rm -f /etc/udev/rules.d/70-persistent-net.rules
+fi
+sudo rm -rf /tmp/*
+sudo rm -rf /var/tmp/*
+sudo truncate -s 0 /etc/machine-id
+sudo rm -f /var/lib/dbus/machine-id
+sudo ln -s /etc/machine-id /var/lib/dbus/machine-id
+sudo cloud-init clean --logs --seed
+sudo rm -f /etc/ssh/ssh_host_*
+if [ -f /var/log/audit/audit.log ]; then
+    sudo cat /dev/null > /var/log/audit/audit.log
+fi
+if [ -f /var/log/wtmp ]; then
+    sudo cat /dev/null > /var/log/wtmp
+fi
+if [ -f /var/log/lastlog ]; then
+    sudo cat /dev/null > /var/log/lastlog
+fi
+
+sudo tee /etc/rc.local >/dev/null << ISSUE
+#!/bin/bash
+# THIS FILE IS ADDED FOR COMPATIBILITY PURPOSES
+#
+# It is highly advisable to create own systemd services or udev rules
+# to run scripts during boot instead of using this file.
+#
+# In contrast to previous versions due to parallel execution during boot
+# this script will NOT be run after all other services.
+#
+# Please note that you must run 'chmod +x /etc/rc.d/rc.local' to ensure
+# that this script will be executed during boot.
+
+touch /var/lock/subsys/local
+
+sudo ls /sys/class/scsi_device/
+sudo echo 1 > /sys/class/scsi_device/0\:0\:0\:0/device/rescan
+
+sudo growpart /dev/sda 4 > /dev/null 2>&1
+sudo pvresize /dev/sda4 > /dev/null 2>&1
+sudo lvextend -l +100%FREE -r /dev/mapper/sysvg-lvroot > resize.txt
+ISSUE
+
+
+echo ' - Configuration complete'
