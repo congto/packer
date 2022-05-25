@@ -44,8 +44,8 @@ New-LocalUser -Name $user -Password $secureString | Out-Null
 
 # Installing Cloudbase-Init
 Write-Host " - Installing Cloudbase-Init ..."
-$msiLocation = 'https://cloudbase.it/downloads'
-$msiFileName = 'CloudbaseInitSetup_Stable_x64.msi'
+$msiLocation = 'http://192.168.20.42/downloads'
+$msiFileName = 'CloudbaseInitSetup_1_1_2_x64.msi'
 Invoke-WebRequest -Uri ($msiLocation + '/' + $msiFileName) -OutFile C:\$msiFileName
 Unblock-File -Path C:\$msiFileName
 Start-Process msiexec.exe -ArgumentList "/i C:\$msiFileName /qn /norestart RUN_SERVICE_AS_LOCAL_SYSTEM=1" -Wait
