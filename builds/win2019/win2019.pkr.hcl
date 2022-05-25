@@ -29,7 +29,7 @@ packer {
 #                              Local Variables                               #
 # -------------------------------------------------------------------------- #
 locals { 
-    build_version   = formatdate("YY.MM", timestamp())
+    build_version   = formatdate("YYYY.MM.DD.hh.mm", timestamp())
     build_date      = formatdate("YYYY-MM-DD hh:mm ZZZ", timestamp())
 }
 
@@ -113,18 +113,18 @@ source "vsphere-iso" "win2019stdcore" {
 
     # Content Library and Template Settings
     convert_to_template         = var.vcenter_convert_template
-    create_snapshot             = var.vcenter_snapshot
-    snapshot_name               = var.vcenter_snapshot_name
-    dynamic "content_library_destination" {
-        for_each = var.vcenter_content_library != null ? [1] : []
-            content {
-                library         = var.vcenter_content_library
-                name            = "${ source.name }"
-                ovf             = var.vcenter_content_library_ovf
-                destroy         = var.vcenter_content_library_destroy
-                skip_import     = var.vcenter_content_library_skip
-            }
-    }
+#    create_snapshot             = var.vcenter_snapshot
+#    snapshot_name               = var.vcenter_snapshot_name
+#    dynamic "content_library_destination" {
+#        for_each = var.vcenter_content_library != null ? [1] : []
+#            content {
+#                library         = var.vcenter_content_library
+#                name            = "${ source.name }"
+#                ovf             = var.vcenter_content_library_ovf
+#                destroy         = var.vcenter_content_library_destroy
+#                skip_import     = var.vcenter_content_library_skip
+#            }
+#    }
 
     # Virtual Machine
     guest_os_type               = var.vm_guestos_type
@@ -172,30 +172,23 @@ build {
     sources                 = [ "source.vsphere-iso.win2019stddexp",
                                 "source.vsphere-iso.win2019stdcore" ]
     
-    # Windows Update using https://github.com/rgl/packer-provisioner-windows-update
-    provisioner "windows-update" {
-        pause_before        = "30s"
-        search_criteria     = "IsInstalled=0"
-        filters             = [ "exclude:$_.Title -like '*VMware*'",
-                                "exclude:$_.Title -like '*Preview*'",
-                                "exclude:$_.Title -like '*Defender*'",
-                                "exclude:$_.InstallationBehavior.CanRequestUserInput",
-                                "include:$true" ]
-        restart_timeout     = "120m"
-    }      
+#   # Windows Update using https://github.com/rgl/packer-provisioner-windows-update
+#   provisioner "windows-update" {
+#       pause_before        = "30s"
+#       search_criteria     = "IsInstalled=0"
+#       filters             = [ "exclude:$_.Title -like '*VMware*'",
+#                               "exclude:$_.Title -like '*Preview*'",
+#                               "exclude:$_.Title -like '*Defender*'",
+#                               "exclude:$_.InstallationBehavior.CanRequestUserInput",
+#                               "include:$true" ]
+#       restart_timeout     = "120m"
+#   }      
     
     # PowerShell Provisioner to execute scripts 
     provisioner "powershell" {
         elevated_user       = var.build_username
         elevated_password   = var.build_password
         scripts             = var.script_files
-    }
-
-    # PowerShell Provisioner to execute commands
-    provisioner "powershell" {
-        elevated_user       = var.build_username
-        elevated_password   = var.build_password
-        inline              = var.inline_cmds
     }
 
     post-processor "manifest" {

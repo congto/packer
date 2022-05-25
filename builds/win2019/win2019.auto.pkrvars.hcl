@@ -20,7 +20,7 @@ vm_os_version                   = "2019"
 vm_firmware                     = "efi-secure"
 vm_cpu_sockets                  = 2
 vm_cpu_cores                    = 4
-vm_mem_size                     = 8192
+vm_mem_size                     = 4096
 vm_nic_type                     = "vmxnet3"
 vm_disk_controller              = ["pvscsi"]
 vm_disk_size                    = 40000
@@ -29,9 +29,9 @@ vm_cdrom_type                   = "sata"
 
 # VM Settings
 vm_cdrom_remove                 = true
-vcenter_convert_template        = false
-vcenter_content_library_ovf     = true
-vcenter_content_library_destroy = true
+vcenter_convert_template        = true
+vcenter_content_library_ovf     = false
+vcenter_content_library_destroy = false
 
 # VM OS Settings
 vm_guestos_type                 = "windows2019srv_64Guest"

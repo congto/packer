@@ -47,48 +47,48 @@ Add-Type -AssemblyName 'System.Web'
 $secureString = ConvertTo-SecureString $pass -AsPlainText -Force
 New-LocalUser -Name $user -Password $secureString | Out-Null
 
-# Importing trusted CA certificates
-Write-Host " - Importing trusted CA certificates ..."
-$webserver = "REPLACEWITHPKISERVER"
-$url = "http://" + $webserver
-$certRoot = "root.crt"
-$certIssuing = "issuing.crt"
-ForEach ($cert in $certRoot,$certIssuing) {
-  Invoke-WebRequest -Uri ($url + "/" + $cert) -OutFile C:\$cert
-}
-Import-Certificate -FilePath C:\$certRoot -CertStoreLocation 'Cert:\LocalMachine\Root' | Out-Null
-Import-Certificate -FilePath C:\$certIssuing -CertStoreLocation 'Cert:\LocalMachine\CA' | Out-Null
-ForEach ($cert in $certRoot,$certIssuing) {
-  Remove-Item C:\$cert -Confirm:$false
-}
+# # Importing trusted CA certificates
+# Write-Host " - Importing trusted CA certificates ..."
+# $webserver = "REPLACEWITHPKISERVER"
+# $url = "http://" + $webserver
+# $certRoot = "root.crt"
+# $certIssuing = "issuing.crt"
+# ForEach ($cert in $certRoot,$certIssuing) {
+  # Invoke-WebRequest -Uri ($url + "/" + $cert) -OutFile C:\$cert
+# }
+# Import-Certificate -FilePath C:\$certRoot -CertStoreLocation 'Cert:\LocalMachine\Root' | Out-Null
+# Import-Certificate -FilePath C:\$certIssuing -CertStoreLocation 'Cert:\LocalMachine\CA' | Out-Null
+# ForEach ($cert in $certRoot,$certIssuing) {
+  # Remove-Item C:\$cert -Confirm:$false
+# }
 
-# Install OpenSSH
-Write-Host " - Installing OpenSSH ..."
-Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0 | Out-Null
-Set-Service sshd -StartupType Automatic | Out-Null
-New-ItemProperty -Path "HKLM:\SOFTWARE\OpenSSH" -Name DefaultShell -Value "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -PropertyType String -Force | Out-Null
+# # Install OpenSSH
+# Write-Host " - Installing OpenSSH ..."
+# Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0 | Out-Null
+# Set-Service sshd -StartupType Automatic | Out-Null
+# New-ItemProperty -Path "HKLM:\SOFTWARE\OpenSSH" -Name DefaultShell -Value "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -PropertyType String -Force | Out-Null
 
-# Variables
-$passwordLength = 20
-$nonAlphaChars = 5
-$ansibleUser = "REPLACEWITHANSIBLEUSERNAME"
-Add-Type -AssemblyName 'System.Web'
+# # Variables
+# $passwordLength = 20
+# $nonAlphaChars = 5
+# $ansibleUser = "REPLACEWITHANSIBLEUSERNAME"
+# Add-Type -AssemblyName 'System.Web'
 
-# Creating Ansible user
-Write-Host " - Creating user for Ansible access ..."
-$ansiblePass = ([System.Web.Security.Membership]::GeneratePassword($passwordLength, $nonAlphaChars))
-$secureString = ConvertTo-SecureString $ansiblePass -AsPlainText -Force
-New-LocalUser -Name $ansibleUser -Password $secureString | Out-Null
-$credential = New-Object System.Management.Automation.PsCredential($ansibleUser,$secureString)
-$process = Start-Process cmd /c -Credential $credential -ErrorAction SilentlyContinue -LoadUserProfile
-$newPass = ([System.Web.Security.Membership]::GeneratePassword($passwordLength, $nonAlphaChars))
-$newSecureString = ConvertTo-SecureString $newPass -AsPlainText -Force
-Set-LocalUser -Name $ansibleUser -Password $newSecureString | Out-Null
-New-Item -Path "C:\Users\$ansibleUser" -Name ".ssh" -ItemType Directory | Out-Null
-$content = @"
-REPLACEWITHANSIBLEUSERKEY REPLACEWITHANSIBLEUSERNAME
-"@ 
-$content | Set-Content -Path "c:\users\$ansibleUser\.ssh\authorized_keys" | Out-Null
+# # Creating Ansible user
+# Write-Host " - Creating user for Ansible access ..."
+# $ansiblePass = ([System.Web.Security.Membership]::GeneratePassword($passwordLength, $nonAlphaChars))
+# $secureString = ConvertTo-SecureString $ansiblePass -AsPlainText -Force
+# New-LocalUser -Name $ansibleUser -Password $secureString | Out-Null
+# $credential = New-Object System.Management.Automation.PsCredential($ansibleUser,$secureString)
+# $process = Start-Process cmd /c -Credential $credential -ErrorAction SilentlyContinue -LoadUserProfile
+# $newPass = ([System.Web.Security.Membership]::GeneratePassword($passwordLength, $nonAlphaChars))
+# $newSecureString = ConvertTo-SecureString $newPass -AsPlainText -Force
+# Set-LocalUser -Name $ansibleUser -Password $newSecureString | Out-Null
+# New-Item -Path "C:\Users\$ansibleUser" -Name ".ssh" -ItemType Directory | Out-Null
+# $content = @"
+# REPLACEWITHANSIBLEUSERKEY REPLACEWITHANSIBLEUSERNAME
+# "@ 
+# $content | Set-Content -Path "c:\users\$ansibleUser\.ssh\authorized_keys" | Out-Null
 
 # Installing Cloudbase-Init
 Write-Host " - Installing Cloudbase-Init ..."
