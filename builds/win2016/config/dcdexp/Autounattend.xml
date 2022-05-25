@@ -21,66 +21,64 @@
         <component name="Microsoft-Windows-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <DiskConfiguration>
                 <Disk wcm:action="add">
-                    <DiskID>0</DiskID>
-                    <WillWipeDisk>true</WillWipeDisk>
                     <CreatePartitions>
-                        <!-- Windows RE Tools partition -->
                         <CreatePartition wcm:action="add">
                             <Order>1</Order>
+                            <Size>350</Size>
                             <Type>Primary</Type>
-                            <Size>300</Size>
                         </CreatePartition>
-                        <!-- System partition (ESP) -->
                         <CreatePartition wcm:action="add">
                             <Order>2</Order>
-                            <Type>EFI</Type>
                             <Size>100</Size>
+                            <Type>EFI</Type>
                         </CreatePartition>
-                        <!-- Microsoft reserved partition (MSR) -->
                         <CreatePartition wcm:action="add">
                             <Order>3</Order>
-                            <Type>MSR</Type>
                             <Size>128</Size>
+                            <Type>MSR</Type>
                         </CreatePartition>
-                        <!-- Windows partition -->
                         <CreatePartition wcm:action="add">
                             <Order>4</Order>
-                            <Type>Primary</Type>
                             <Extend>true</Extend>
+                            <Type>Primary</Type>
                         </CreatePartition>
                     </CreatePartitions>
                     <ModifyPartitions>
-                        <!-- Windows RE Tools partition -->
                         <ModifyPartition wcm:action="add">
                             <Order>1</Order>
                             <PartitionID>1</PartitionID>
                             <Label>WINRE</Label>
                             <Format>NTFS</Format>
-                            <TypeID>DE94BBA4-06D1-4D40-A16A-BFD50179D6AC</TypeID>
+                            <TypeID>de94bba4-06d1-4d40-a16a-bfd50179d6ac</TypeID>
                         </ModifyPartition>
-                        <!-- System partition (ESP) -->
                         <ModifyPartition wcm:action="add">
                             <Order>2</Order>
                             <PartitionID>2</PartitionID>
                             <Label>System</Label>
                             <Format>FAT32</Format>
                         </ModifyPartition>
-                        <!-- MSR partition does not need to be modified -->
                         <ModifyPartition wcm:action="add">
                             <Order>3</Order>
                             <PartitionID>3</PartitionID>
                         </ModifyPartition>
-                        <!-- Windows partition -->
                         <ModifyPartition wcm:action="add">
                             <Order>4</Order>
                             <PartitionID>4</PartitionID>
                             <Label>OS</Label>
-                            <Letter>C</Letter>
                             <Format>NTFS</Format>
                         </ModifyPartition>
                     </ModifyPartitions>
+                    <DiskID>0</DiskID>
+                    <WillWipeDisk>true</WillWipeDisk>
                 </Disk>
+                <WillShowUI>OnError</WillShowUI>
             </DiskConfiguration>
+            <Display>
+                <ColorDepth>32</ColorDepth>
+                <HorizontalResolution>1440</HorizontalResolution>
+                <RefreshRate>60</RefreshRate>
+                <VerticalResolution>900</VerticalResolution>
+            </Display>
             <ImageInstall>
                 <OSImage>
                     <InstallFrom>
@@ -96,13 +94,9 @@
                 </OSImage>
             </ImageInstall>
             <UserData>
-                <ProductKey>
-                    <Key>WC2BQ-8NRM3-FDDYY-2BFGV-KHKQY</Key>
-                    <WillShowUI>OnError</WillShowUI>
-                </ProductKey>
                 <AcceptEula>true</AcceptEula>
-                <FullName>v12n</FullName>
-                <Organization>v12n</Organization>
+                <FullName>HCD</FullName>
+                <Organization>HCD</Organization>
             </UserData>
         </component>
     </settings>
@@ -179,11 +173,6 @@
                 </AdministratorPassword>
             </UserAccounts>
             <RegisteredOwner />
-        </component>
-    </settings>
-    <settings pass="offlineServicing">
-        <component name="Microsoft-Windows-LUA-Settings" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <EnableLUA>false</EnableLUA>
         </component>
     </settings>
     <cpi:offlineImage cpi:source="wim:c:/wim/install.wim#Windows Server 2016 R2 SERVERDATACENTER" xmlns:cpi="urn:schemas-microsoft-com:cpi" />

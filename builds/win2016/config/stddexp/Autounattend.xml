@@ -101,8 +101,8 @@
                     <WillShowUI>OnError</WillShowUI>
                 </ProductKey>
                 <AcceptEula>true</AcceptEula>
-                <FullName>v12n</FullName>
-                <Organization>v12n</Organization>
+                <FullName>HCD</FullName>
+                <Organization>HCD</Organization>
             </UserData>
         </component>
     </settings>
