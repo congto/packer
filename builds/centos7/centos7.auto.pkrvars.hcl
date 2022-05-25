@@ -28,7 +28,7 @@ vm_disk_thin                    = true
 vm_cdrom_type                   = "sata"
 
 # VM Settings
-vm_cdrom_remove                 = true
+vm_cdrom_remove                 = false
 vcenter_convert_template        = true
 vcenter_content_library_ovf     = false
 vcenter_content_library_destroy = false
