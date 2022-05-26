@@ -36,5 +36,5 @@ Resize-Partition -DriveLetter C -Size $(Get-PartitionSupportedSize -DriveLetter 
 "@
 New-Item -Path $confPath2 -Name $confFile2 -ItemType File -Force -Value $confContent2 | Out-Null
 
-schtasks /create /tn “FileMonitor” /sc onstart /delay 0000:30 /rl highest /ru system /tr “powershell.exe -file C:\extend.ps1
+schtasks /create /tn "FileMonitor" /sc onstart /delay 0000:30 /rl highest /ru system /tr "powershell.exe -file C:\extend.ps1"
 
