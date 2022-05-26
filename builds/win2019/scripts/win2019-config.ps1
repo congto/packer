@@ -102,6 +102,12 @@ $confFile = 'cloudbase-init.conf'
 $confPath = "C:\Program Files\Cloudbase Solutions\Cloudbase-Init\conf\"
 $confContent = @"
 [DEFAULT]
+username=Administrator
+groups=Administrators
+inject_user_password=true
+config_drive_raw_hhd=true
+config_drive_cdrom=true
+config_drive_vfat=true
 bsdtar_path=C:\Program Files\Cloudbase Solutions\Cloudbase-Init\bin\bsdtar.exe
 mtools_path=C:\Program Files\Cloudbase Solutions\Cloudbase-Init\bin\
 verbose=true
@@ -109,14 +115,52 @@ debug=true
 logdir=C:\Program Files\Cloudbase Solutions\Cloudbase-Init\log\
 logfile=cloudbase-init.log
 default_log_levels=comtypes=INFO,suds=INFO,iso8601=WARN,requests=WARN
+logging_serial_port_settings=
+mtu_use_dhcp_config=true
+ntp_use_dhcp_config=true
 local_scripts_path=C:\Program Files\Cloudbase Solutions\Cloudbase-Init\LocalScripts\
-metadata_services=cloudbaseinit.metadata.services.vmwareguestinfoservice.VMwareGuestInfoService
-plugins=cloudbaseinit.plugins.common.userdata.UserDataPlugin
+check_latest_version=true
+first_logon_behaviour=no
+metadata_services=cloudbaseinit.metadata.services.ovfservice.OvfService
+plugins=cloudbaseinit.plugins.windows.createuser.CreateUserPlugin,cloudbaseinit.plugins.windows.setuserpassword.SetUserPasswordPlugin,cloudbaseinit.plugins.common.sshpublickeys.SetUserSSHPublicKeysPlugin,cloudbaseinit.plugins.common.userdata.UserDataPlugin
 "@
 New-Item -Path $confPath -Name $confFile -ItemType File -Force -Value $confContent | Out-Null
+
+$confFile1 = 'cloudbase-init-unattend.conf'
+$confPath = "C:\Program Files\Cloudbase Solutions\Cloudbase-Init\conf\"
+$confContent1 = @"
+[DEFAULT]
+username=Administrator
+groups=Administrators
+inject_user_password=true
+config_drive_raw_hhd=true
+config_drive_cdrom=true
+config_drive_vfat=true
+bsdtar_path=C:\Program Files\Cloudbase Solutions\Cloudbase-Init\bin\bsdtar.exe
+mtools_path=C:\Program Files\Cloudbase Solutions\Cloudbase-Init\bin\
+verbose=true
+debug=true
+logdir=C:\Program Files\Cloudbase Solutions\Cloudbase-Init\log\
+logfile=cloudbase-init-unattend.log
+default_log_levels=comtypes=INFO,suds=INFO,iso8601=WARN,requests=WARN
+logging_serial_port_settings=
+mtu_use_dhcp_config=true
+ntp_use_dhcp_config=true
+local_scripts_path=C:\Program Files\Cloudbase Solutions\Cloudbase-Init\LocalScripts\
+check_latest_version=false
+metadata_services=cloudbaseinit.metadata.services.ovfservice.OvfService
+metadata_services=cloudbaseinit.metadata.services.configdrive.ConfigDriveService,cloudbaseinit.metadata.services.httpservice.HttpService,cloudbaseinit.metadata.services.ec2service.EC2Service,cloudbaseinit.metadata.services.maasservice.MaaSHttpService
+plugins=cloudbaseinit.plugins.common.mtu.MTUPlugin,cloudbaseinit.plugins.common.sethostname.SetHostNamePlugin,cloudbaseinit.plugins.windows.extendvolumes.ExtendVolumesPlugin
+allow_reboot=false
+stop_service_on_exit=false
+"@
+New-Item -Path $confPath -Name $confFile1 -ItemType File -Force -Value $confContent1 | Out-Null
+
 Start-Process sc.exe -ArgumentList "config cloudbase-init start= delayed-auto" -wait | Out-Null
-Remove-Item -Path ($confPath + "cloudbase-init-unattend.conf") -Confirm:$false 
-Remove-Item -Path ($confPath + "Unattend.xml") -Confirm:$false 
+#Remove-Item -Path ($confPath + "cloudbase-init-unattend.conf") -Confirm:$false 
+#Remove-Item -Path ($confPath + "Unattend.xml") -Confirm:$false 
+
+
 Remove-Item C:\$msiFileName -Confirm:$false
 
 # Enabling RDP connections
