@@ -89,8 +89,8 @@ RUNONCE
 
 sudo chmod +rx /etc/cloud/runonce.sh
 echo "$(echo '@reboot ( sleep 30 ; sh /etc/cloud/runonce.sh )' ; crontab -l)" | sudo crontab -
-# echo ' - Installing cloud-init-vmware-guestinfo ...'
-# curl -sSL https://raw.githubusercontent.com/vmware/cloud-init-vmware-guestinfo/master/install.sh | sudo sh - &>/dev/null
+echo ' - Installing cloud-init-vmware-guestinfo ...'
+curl -sSL https://raw.githubusercontent.com/vmware/cloud-init-vmware-guestinfo/master/install.sh | sudo sh - &>/dev/null
 
 ## Setup MoTD
 echo ' - Setting login banner ...'
