@@ -27,3 +27,14 @@ Disable-NetAdapterBinding -Name "*" -ComponentID ms_tcpip6
 # Reset auto logon count
 # https://docs.microsoft.com/en-us/windows-hardware/customize/desktop/unattend/microsoft-windows-shell-setup-autologon-logoncount#logoncount-known-issue
 Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon' -Name AutoLogonCount -Value 0
+
+$confFile2 = 'extend.ps1'
+$confPath2 = "C:\"
+$confContent = @"
+$drive_letter = "C"
+Resize-Partition -DriveLetter C -Size $(Get-PartitionSupportedSize -DriveLetter C).SizeMax
+"@
+New-Item -Path $confPath2 -Name $confFile2 -ItemType File -Force -Value $confContent2 | Out-Null
+
+schtasks /create /tn “FileMonitor” /sc onstart /delay 0000:30 /rl highest /ru system /tr “powershell.exe -file C:\extend.ps1
+
