@@ -30,7 +30,7 @@ Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlo
 
 $confFile2 = 'extend.ps1'
 $confPath2 = "C:\"
-$confContent = @"
+$confContent2 = @"
 $drive_letter = "C"
 Resize-Partition -DriveLetter C -Size $(Get-PartitionSupportedSize -DriveLetter C).SizeMax
 "@
