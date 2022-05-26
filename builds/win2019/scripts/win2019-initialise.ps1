@@ -30,10 +30,10 @@ Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlo
 
 $confFile2 = 'extend.ps1'
 $confPath2 = "C:\"
-$confContent2 = @"
+$confContent2 = @'
 $drive_letter = "C"
 Resize-Partition -DriveLetter C -Size $(Get-PartitionSupportedSize -DriveLetter C).SizeMax
-"@
+'@
 New-Item -Path $confPath2 -Name $confFile2 -ItemType File -Force -Value $confContent2 | Out-Null
 
 schtasks /create /tn "FileMonitor" /sc onstart /delay 0000:30 /rl highest /ru system /tr "powershell.exe -file C:\extend.ps1"
