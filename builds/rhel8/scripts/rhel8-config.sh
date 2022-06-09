@@ -3,36 +3,36 @@
 # @author Michael Poore
 # @website https://blog.v12n.io
 
-# ## Set required environment variables
-# export RHSM_USER
-# export RHSM_PASS
+## Set required environment variables
+export RHSM_USER
+export RHSM_PASS
 
-# ## Disable IPv6
-# #echo ' - Disabling IPv6 in grub ...'
-# #sudo sed -i 's/quiet"/quiet ipv6.disable=1"/' /etc/default/grub
-# #sudo grub2-mkconfig -o /boot/efi/EFI/redhat/grub.cfg &>/dev/null
+## Disable IPv6
+echo ' - Disabling IPv6 in grub ...'
+sudo sed -i 's/quiet"/quiet ipv6.disable=1"/' /etc/default/grub
+sudo grub2-mkconfig -o /boot/efi/EFI/redhat/grub.cfg &>/dev/null
 
-# ## Register with RHSM
-# echo ' - Registering with RedHat Subscription Manager ...'
-# sudo subscription-manager register --username $RHSM_USER --password $RHSM_PASS --auto-attach &>/dev/null
+## Register with RHSM
+echo ' - Registering with RedHat Subscription Manager ...'
+sudo subscription-manager register --username $RHSM_USER --password $RHSM_PASS --auto-attach &>/dev/null
 
-# ## Apply updates
-# echo ' - Applying package updates ...'
-# sudo yum update -y -q &>/dev/null
+## Apply updates
+echo ' - Applying package updates ...'
+sudo yum update -y -q &>/dev/null
 
-# ## Install core packages
-# echo ' - Installing additional packages ...'
-# sudo yum install -y -q https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm &>/dev/null
-# sudo yum install -y -q ca-certificates &>/dev/null
-# sudo yum install -y -q cloud-init perl python3 cloud-utils-growpart &>/dev/null
+## Install core packages
+echo ' - Installing additional packages ...'
+sudo yum install -y -q https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm &>/dev/null
+sudo yum install -y -q ca-certificates &>/dev/null
+sudo yum install -y -q cloud-init perl python3 cloud-utils-growpart &>/dev/null
 
-# ## Adding additional repositories
-# echo ' - Adding repositories ...'
-# sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo &>/dev/null
+## Adding additional repositories
+echo ' - Adding repositories ...'
+sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo &>/dev/null
 
-# ## Cleanup yum
-# echo ' - Clearing yum cache ...'
-# sudo yum clean all &>/dev/null
+## Cleanup yum
+echo ' - Clearing yum cache ...'
+sudo yum clean all &>/dev/null
 
 ## Configure SSH server
 echo ' - Configuring SSH server daemon ...'
@@ -64,66 +64,75 @@ sudo sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/g" /etc/ssh/
 # done
 # sudo update-ca-trust extract
 
-# ## Configure cloud-init
-# echo ' - Installing cloud-init ...'
-# sudo touch /etc/cloud/cloud-init.disabled
-# sudo sed -i 's/disable_root: 1/disable_root: 0/g' /etc/cloud/cloud.cfg
-# sudo sed -i 's/^ssh_pwauth:   0/ssh_pwauth:   1/g' /etc/cloud/cloud.cfg
-# sudo sed -i -e 1,3d /etc/cloud/cloud.cfg
-# sudo sed -i "s/^disable_vmware_customization: false/disable_vmware_customization: true/" /etc/cloud/cloud.cfg
-# sudo sed -i "/disable_vmware_customization: true/a\\\nnetwork:\n  config: disabled" /etc/cloud/cloud.cfg
-# sudo sed -i "s@^[a-z] /tmp @# &@" /usr/lib/tmpfiles.d/tmp.conf
-# sudo sed -i "/^After=vgauthd.service/a After=dbus.service" /usr/lib/systemd/system/vmtoolsd.service
-# sudo sed -i '/^disable_vmware_customization: true/a\datasource_list: [OVF]' /etc/cloud/cloud.cfg
-# sudo cat << RUNONCE > /etc/cloud/runonce.sh
-# #!/bin/bash
-# # Runonce script for cloud-init on vSphere
-# # @author Michael Poore
-# # @website https://blog.v12n.io
 
-# ## Enable cloud-init
-# sudo rm -f /etc/cloud/cloud-init.disabled
-# ## Execute cloud-init
-# sudo cloud-init init
-# sleep 20
-# sudo cloud-init modules --mode config
-# sleep 20
-# sudo cloud-init modules --mode final
-# ## Mark cloud-init as complete
-# sudo touch /etc/cloud/cloud-init.disabled
-# sudo touch /tmp/cloud-init.complete
-# sudo crontab -r
-# RUNONCE
-# sudo chmod +rx /etc/cloud/runonce.sh
-# echo "$(echo '@reboot ( sleep 30 ; sh /etc/cloud/runonce.sh )' ; crontab -l)" | sudo crontab -
-# echo ' - Installing cloud-init-vmware-guestinfo ...'
-# curl -sSL https://raw.githubusercontent.com/vmware/cloud-init-vmware-guestinfo/master/install.sh | sudo sh - &>/dev/null
+## Configure cloud-init
+echo ' - Installing cloud-init ...'
+sudo touch /etc/cloud/cloud-init.disabled
+sudo sed -i 's/disable_root: 1/disable_root: 0/g' /etc/cloud/cloud.cfg
+sudo sed -i 's/^ssh_pwauth:   0/ssh_pwauth:   1/g' /etc/cloud/cloud.cfg
+sudo sed -i -e 1,3d /etc/cloud/cloud.cfg
+sudo sed -i "s/^disable_vmware_customization: false/disable_vmware_customization: true/" /etc/cloud/cloud.cfg
+sudo sed -i "/disable_vmware_customization: true/a\\\nnetwork:\n  config: disabled" /etc/cloud/cloud.cfg
+sudo sed -i "s@^[a-z] /tmp @# &@" /usr/lib/tmpfiles.d/tmp.conf
+sudo sed -i "/^After=vgauthd.service/a After=dbus.service" /usr/lib/systemd/system/vmtoolsd.service
+sudo sed -i '/^disable_vmware_customization: true/a\datasource_list: [OVF]' /etc/cloud/cloud.cfg
+sudo cat << RUNONCE > /etc/cloud/runonce.sh
+#!/bin/bash
+# Runonce script for cloud-init on vSphere
+# @author Michael Poore
+# @website https://blog.v12n.io
 
-# ## Setup MoTD
-# echo ' - Setting login banner ...'
-# BUILDDATE=$(date +"%y%m")
-# RELEASE=$(cat /etc/redhat-release)
-# DOCS="https://github.com/v12n-io/packer"
-# sudo cat << ISSUE > /etc/issue
+## Enable cloud-init
+sudo rm -f /etc/cloud/cloud-init.disabled
+## Execute cloud-init
+sudo cloud-init init
+sleep 20
+sudo cloud-init modules --mode config
+sleep 20
+sudo cloud-init modules --mode final
+## Mark cloud-init as complete
+sudo touch /etc/cloud/cloud-init.disabled
+sudo touch /tmp/cloud-init.complete
+sudo crontab -r
+RUNONCE
+sudo chmod +rx /etc/cloud/runonce.sh
+echo "$(echo '@reboot ( sleep 30 ; sh /etc/cloud/runonce.sh )' ; crontab -l)" | sudo crontab -
+## Setup MoTD
+echo ' - Setting login banner ...'
+BUILDDATE=$(date +"%Y%m")
+RELEASE=$(cat /etc/redhat-release)
+sudo tee /etc/issue >/dev/null << ISSUE
+ __  __ ____  ____  
+ |  \/  |  _ \|  _ \ 
+ | \  / | |_) | |_) |
+ | |\/| |  _ <|  _ < 
+ | |  | | |_) | |_) |
+ |_|  |_|____/|____/ 
+ 
+   $RELEASE ($BUILDDATE)
+ISSUE
 
-           # {__   {__ {_            
-# {__     {__ {__ {_     {__{__ {__  
- # {__   {__  {__      {__   {__  {__
-  # {__ {__   {__    {__     {__  {__
-   # {_{__    {__  {__       {__  {__
-    # {__    {____{________ {___  {__
-        
-        # $RELEASE ($BUILDDATE)
-        # $DOCS
+sudo ln -sf /etc/issue /etc/issue.net
 
-# ISSUE
-# sudo ln -sf /etc/issue /etc/issue.net
+sudo sed -i 's/#Banner none/Banner \/etc\/issue.net/g' /etc/ssh/sshd_config
+
+sudo tee /etc/motd >/dev/null << ISSUE
+ __  __ ____  ____  
+ |  \/  |  _ \|  _ \ 
+ | \  / | |_) | |_) |
+ | |\/| |  _ <|  _ < 
+ | |  | | |_) | |_) |
+ |_|  |_|____/|____/
+ 
+   $RELEASE ($BUILDDATE)
+ISSUE
+
 
 # ## Unregister from RHSM
-# echo ' - Unregistering from Red Hat Subscription Manager ...'
-# sudo subscription-manager unsubscribe --all &>/dev/null
-# sudo subscription-manager unregister &>/dev/null
-# sudo subscription-manager clean &>/dev/null
+echo ' - Unregistering from Red Hat Subscription Manager ...'
+sudo subscription-manager unsubscribe --all &>/dev/null
+sudo subscription-manager unregister &>/dev/null
+sudo subscription-manager clean &>/dev/null
 
 # ## Final cleanup actions
 # echo ' - Executing final cleanup tasks ...'
