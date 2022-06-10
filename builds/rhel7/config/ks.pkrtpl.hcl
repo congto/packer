@@ -32,14 +32,22 @@ selinux --enforcing
 bootloader --location=mbr
 zerombr
 clearpart --all --initlabel
-part /boot --fstype xfs --size=1024
-part /boot/efi --fstype vfat --size=512
-part pv.01 --size=1024 --grow
-volgroup sysvg pv.01
-logvol swap --fstype swap --name=lvswap --vgname=sysvg --size=8192
-logvol / --fstype xfs --name=lvroot --vgname=sysvg --size=16384
-logvol /tmp --fstype xfs --name=lvtmp --vgname=sysvg --size=4096
 
+
+## Disk NO LVM
+part /boot/efi --fstype=vfat --size=500
+part /boot --fstype=xfs --size=1000
+part swap --fstype=swap --size=8000
+part / --fstype=xfs --size=2000 --grow
+
+## Disk LVM
+# part /boot --fstype xfs --size=1024
+# part /boot/efi --fstype vfat --size=512
+# part pv.01 --size=1024 --grow
+# volgroup sysvg pv.01
+# logvol swap --fstype swap --name=lvswap --vgname=sysvg --size=8192
+# logvol / --fstype xfs --name=lvroot --vgname=sysvg --size=16384
+# logvol /tmp --fstype xfs --name=lvtmp --vgname=sysvg --size=4096
 # Software / Package Settings
 skipx
 services --enabled=NetworkManager,sshd

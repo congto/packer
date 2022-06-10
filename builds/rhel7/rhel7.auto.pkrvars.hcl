@@ -22,11 +22,11 @@ vm_os_timezone                  = "Asia/Ho_Chi_Minh"
 # VM Hardware Settings
 vm_firmware                     = "efi-secure"
 vm_cpu_sockets                  = 2
-vm_cpu_cores                    = 4
+vm_cpu_cores                    = 2
 vm_mem_size                     = 4096
 vm_nic_type                     = "vmxnet3"
 vm_disk_controller              = ["pvscsi"]
-vm_disk_size                    = 32768
+vm_disk_size                    = 20480
 vm_disk_thin                    = true
 vm_cdrom_type                   = "sata"
 
